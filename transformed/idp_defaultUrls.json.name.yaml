@@ -1,0 +1,105 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  IdpDefaultUrl:
+    description: IDP Default URL settings.
+    properties:
+      confirmIdpSlo:
+        description: Prompt user to confirm Single Logout (SLO).
+        type: boolean
+      idpErrorMsg:
+        description: >-
+          Provide the error text displayed in a user's browser when an SSO
+          operation fails.
+        type: string
+      idpSloSuccessUrl:
+        description: >-
+          Provide the default URL you would like to send the user to when Single
+          Logout has succeeded.
+        type: string
+    required:
+      - idpErrorMsg
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /idp/defaultUrls:
+    get:
+      operationId: getDefaultUrl
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/IdpDefaultUrl'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+      summary: Gets the IDP Default URL settings.
+    put:
+      consumes:
+        - application/json
+      operationId: updateDefaultUrlSettings
+      parameters:
+        - description: Configuration for the IdP Default URL settings.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/IdpDefaultUrl'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Default URL updated.
+          schema:
+            $ref: '#/definitions/IdpDefaultUrl'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update the IDP Default URL settings.
+schemes:
+  - https
+swagger: '2.0'
+

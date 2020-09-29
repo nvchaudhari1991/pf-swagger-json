@@ -1,0 +1,122 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  ResourceLink:
+    description: A reference to a resource.
+    properties:
+      id:
+        description: The ID of the resource.
+        type: string
+      location:
+        description: >-
+          A read-only URL that references the resource. If the resource is not
+          currently URL-accessible, this property will be null.
+        type: string
+    required:
+      - id
+  SpUrlMapping:
+    description: SP URL mapping
+    properties:
+      ref:
+        $ref: '#/definitions/ResourceLink'
+        description: The adapter or connection instance mapped for this URL.
+      type:
+        $ref: '#/definitions/TargetUrlSource'
+        description: The URL mapping type
+        enum:
+          - SP_ADAPTER
+          - SP_CONNECTION
+      url:
+        description: >-
+          The URL that will be compared against the target URL. Use a wildcard
+          (*) to match multiple URLs to the same adapter or connection instance.
+        type: string
+  SpUrlMappings:
+    properties:
+      items:
+        description: The actual list of SP connection URL mappings.
+        items:
+          $ref: '#/definitions/SpUrlMapping'
+        type: array
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /sp/targetUrlMappings:
+    get:
+      operationId: getUrlMappings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/SpUrlMappings'
+        '403':
+          description: >-
+            PingFederate does not have its SP role enabled. Operation not
+            available.
+      summary: List the mappings between URLs and adapter or connection instances.
+    put:
+      operationId: updateUrlMappings
+      parameters:
+        - description: The SP adapter URL mappings to update.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SpUrlMappings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Mapping updated.
+          schema:
+            $ref: '#/definitions/SpUrlMappings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its SP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update the mappings between URLs and adapters or connections instances.
+schemes:
+  - https
+swagger: '2.0'
+

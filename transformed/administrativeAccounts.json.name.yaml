@@ -1,0 +1,286 @@
+basePath: /pf-admin-api/v1
+definitions:
+  AdministrativeAccount:
+    description: A PingFederate administrator account.
+    properties:
+      active:
+        description: Indicates whether the account is active or not.
+        type: boolean
+      auditor:
+        description: >-
+          Indicates whether the account belongs to an Auditor. An Auditor has
+          View-only permissions for all administrative functions. An Auditor
+          cannot have any administrative roles.
+        type: boolean
+      department:
+        description: The Department name of account user.
+        type: string
+      description:
+        description: Description of the account.
+        type: string
+      emailAddress:
+        description: Email address associated with the account.
+        type: string
+      encryptedPassword:
+        description: >-
+          For GET requests, this field contains the encrypted account password.
+          For POST and PUT requests, if you wish to re-use the password from an
+          API response to this endpoint, this field should be passed back
+          unchanged.
+        type: string
+      password:
+        description: >-
+          Password for the Account. This field is only applicable during a POST
+          operation.
+        type: string
+      phoneNumber:
+        description: Phone number associated with the account.
+        type: string
+      roles:
+        description: >-
+          Roles available for an administrator. <br>USER_ADMINISTRATOR - Can
+          create, deactivate or delete accounts and reset passwords.
+          Additionally, install replacement license keys. <br>
+          CRYPTO_ADMINISTRATOR - Can manage local keys and certificates. <br>
+          ADMINISTRATOR - Can configure partner connections and most system
+          settings (except the management of native accounts and the handling of
+          local keys and certificates. <br>
+        items:
+          $ref: '#/definitions/AdministrativeRoleType'
+          enum:
+            - USER_ADMINISTRATOR
+            - CRYPTO_ADMINISTRATOR
+            - ADMINISTRATOR
+        type: array
+        uniqueItems: true
+      username:
+        description: Username for the Administrative Account.
+        type: string
+    required:
+      - username
+  AdministrativeAccounts:
+    description: PingFederate administrator accounts.
+    properties:
+      items:
+        description: List of Administrative Accounts.
+        items:
+          $ref: '#/definitions/AdministrativeAccount'
+        type: array
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  UserCredentials:
+    description: Credentials for an administrator account.
+    properties:
+      currentPassword:
+        description: >-
+          Current password. Required only during Password Change and not
+          applicable for Password Reset.
+        type: string
+      newPassword:
+        description: A new password.
+        type: string
+    required:
+      - newPassword
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /administrativeAccounts:
+    get:
+      operationId: getAccounts
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/AdministrativeAccounts'
+        '422':
+          description: Validation error(s) occurred.
+      summary: Get all the PingFederate native Administrative Accounts.
+    post:
+      consumes:
+        - application/json
+      operationId: addAccount
+      parameters:
+        - description: Administrative account information.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AdministrativeAccount'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: New Administrative Account created.
+          schema:
+            $ref: '#/definitions/AdministrativeAccount'
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Add a new PingFederate native Administrative Account.
+  /administrativeAccounts/changePassword:
+    post:
+      consumes:
+        - application/json
+      operationId: changePassword
+      parameters:
+        - description: User Account credential.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserCredentials'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Administrator password changed.
+          schema:
+            $ref: '#/definitions/UserCredentials'
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Change the Password of current PingFederate native Account.
+  '/administrativeAccounts/{username}':
+    delete:
+      operationId: deleteAccount
+      parameters:
+        - description: Username of the account to be deleted.
+          in: path
+          name: username
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: Administrator Account Deleted.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Delete a PingFederate native Administrative Account information.
+    get:
+      operationId: getAccount
+      parameters:
+        - description: Username of the administrative account.
+          in: path
+          name: username
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/AdministrativeAccount'
+        '404':
+          description: Resource not found.
+      summary: Get a PingFederate native Administrative Account.
+    put:
+      consumes:
+        - application/json
+      operationId: updateAccount
+      parameters:
+        - description: Username of the account to be updated.
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Administrative account information.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AdministrativeAccount'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Administrator Account updated.
+          schema:
+            $ref: '#/definitions/AdministrativeAccount'
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Update the information for a native Administrative Account.
+  '/administrativeAccounts/{username}/resetPassword':
+    post:
+      consumes:
+        - application/json
+      operationId: resetPassword
+      parameters:
+        - description: Username of the administrative account.
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: New password.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserCredentials'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Administrator password reset.
+          schema:
+            $ref: '#/definitions/UserCredentials'
+        '404':
+          description: Resource not found.
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: >-
+        Reset the Password of an existing PingFederate native Administrative
+        Account.
+schemes:
+  - https
+swagger: '2.0'
+

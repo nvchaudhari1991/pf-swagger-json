@@ -1,0 +1,109 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  SpDefaultUrls:
+    description: SP Default URLs.
+    properties:
+      confirmSlo:
+        description: >-
+          Determines whether the user is prompted to confirm Single Logout
+          (SLO). The default is false.
+        type: boolean
+      sloSuccessUrl:
+        description: >-
+          Provide the default URL you would like to send the user to when Single
+          Logout (SLO) has succeeded.
+        type: string
+      ssoSuccessUrl:
+        description: >-
+          Provide the default URL you would like to send the user to when Single
+          Sign On (SSO) has succeeded.
+        type: string
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /sp/defaultUrls:
+    get:
+      operationId: getDefaultUrls
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/SpDefaultUrls'
+        '403':
+          description: >-
+            PingFederate does not have its SP role enabled. Operation not
+            available.
+      summary: >-
+        Gets the SP Default URLs. These are Values that affect the user's
+        experience when executing SP-initiated SSO operations.
+    put:
+      consumes:
+        - application/json
+      operationId: updateDefaultUrls
+      parameters:
+        - description: Configuration for the IDP Default URL settings.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SpDefaultUrls'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Default URL updated.
+          schema:
+            $ref: '#/definitions/SpDefaultUrls'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its SP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: >-
+        Update the SP Default URLs. Enter values that affect the user's
+        experience when executing SP-initiated SSO operations.
+schemes:
+  - https
+swagger: '2.0'
+

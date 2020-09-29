@@ -1,0 +1,141 @@
+basePath: /pf-admin-api/v1
+definitions:
+  BulkConfig:
+    description: Model describing a series of configuration operations.
+    properties:
+      metadata:
+        $ref: '#/definitions/BulkConfigMetadata'
+        description: The metadata detailing how this config was generated.
+      operations:
+        description: A list of configuration operations.
+        items:
+          $ref: '#/definitions/ConfigOperation'
+        type: array
+    required:
+      - metadata
+      - operations
+  BulkConfigMetadata:
+    description: Model describing how bulk configuration data was generated.
+    properties:
+      pfVersion:
+        description: The version of PingFederate this config was generated from.
+        type: string
+    required:
+      - pfVersion
+  ConfigOperation:
+    description: >-
+      Model describing a list of configuration operations for a given resource
+      type.
+    properties:
+      itemIds:
+        description: >-
+          The item ID's for the operation. This field only applies to the DELETE
+          operation type.
+        items:
+          type: string
+        type: array
+      items:
+        description: >-
+          The configuration items for the operation. This field only applies to
+          the SAVE operation type.
+        items:
+          type: object
+        type: array
+      operationType:
+        $ref: '#/definitions/ConfigOperationType'
+        description: The type of operation to be performed.
+        enum:
+          - SAVE
+          - DELETE
+      resourceType:
+        description: The identifier for the resource type the operation applies to.
+        type: string
+      subResource:
+        description: The subresource for the operation.
+        type: string
+    required:
+      - resourceType
+      - operationType
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /bulk/export:
+    get:
+      description: >-
+        For the /configStore resource type, only the settings that are different
+        from the defaults for this version of PingFederate are included in the
+        export.<br><br>Only resource types currently supported by the
+        Administrative API are included in the exported data. Resources not yet
+        supported include:<br><br>- PingOne Settings<br>- Incoming Proxy
+        Settings<br>- SMS Provider Settings<br>- Connection Metadata
+        Settings<br>- WS-Trust STS Settings<br>- Service Authentication
+        Settings<br>- Inbound Provisioning Connections and Stores<br>
+      operationId: exportConfiguration
+      parameters:
+        - default: false
+          description: >-
+            Include external resources like OAuth clients stored outside of
+            PingFederate.
+          in: query
+          name: includeExternalResources
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/BulkConfig'
+        '403':
+          description: The current configuration cannot be bulk exported.
+      summary: Export all API resources to a JSON file.
+  /bulk/import:
+    post:
+      consumes:
+        - application/json
+      description: >-
+        All existing configuration will be wiped before the import begins. If
+        any validation errors are found, PingFederate will roll back to the
+        previous configuration. The master key set in pf.jwk must include the
+        key in use when the JSON configuration was originally exported.
+      operationId: importConfiguration
+      parameters:
+        - default: true
+          description: >-
+            When set to true, stops the import as soon as any validation errors
+            are encountered.
+          in: query
+          name: failFast
+          required: false
+          type: boolean
+        - description: Configuration to import.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/BulkConfig'
+        - default: false
+          description: >-
+            External validation will be bypassed when set to true. Default to
+            false.
+          in: header
+          name: X-BypassExternalValidation
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Import configuration for a PingFederate deployment from a JSON file.
+schemes:
+  - https
+swagger: '2.0'
+

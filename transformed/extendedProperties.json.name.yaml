@@ -1,0 +1,99 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  ExtendedProperties:
+    description: A collection of Extended Properties definitions.
+    properties:
+      items:
+        description: The actual list of Extended Property definitions.
+        items:
+          $ref: '#/definitions/ExtendedProperty'
+        type: array
+  ExtendedProperty:
+    description: >-
+      Extended Property definition that allows to store additional information
+      about IdP/SP Connections and OAuth Clients.
+    properties:
+      description:
+        description: The property description.
+        type: string
+      multiValued:
+        description: Indicates whether the property should allow multiple values.
+        type: boolean
+      name:
+        description: The property name.
+        type: string
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /extendedProperties:
+    get:
+      operationId: getExtendedProperties
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/ExtendedProperties'
+      summary: Get the defined Extended Properties.
+    put:
+      consumes:
+        - application/json
+      operationId: updateExtendedProperties
+      parameters:
+        - description: Definition of extended properties.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ExtendedProperties'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Extended properties updated.
+          schema:
+            $ref: '#/definitions/ExtendedProperties'
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update the Extended Properties.
+schemes:
+  - https
+swagger: '2.0'
+

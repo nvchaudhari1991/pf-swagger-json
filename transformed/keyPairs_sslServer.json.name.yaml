@@ -1,0 +1,583 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  CSRResponse:
+    description: Represents a CSR response file.
+    properties:
+      fileData:
+        description: >-
+          The CSR response file data in PKCS7 format or as an X.509 certificate.
+          PEM encoding (with or without the header and footer lines) is
+          required. New line characters should be omitted or encoded in this
+          value.
+        type: string
+    required:
+      - fileData
+  KeyPairRotationSettings:
+    description: Key Pair Rotation Details
+    properties:
+      activationBufferDays:
+        description: >-
+          Buffer days before key pair expiration for activation of the new key
+          pair.
+        format: int32
+        type: integer
+      creationBufferDays:
+        description: Buffer days before key pair expiration for creation of a new key pair.
+        format: int32
+        type: integer
+      id:
+        type: string
+      keyAlgorithm:
+        description: >-
+          Key algorithm to be used while creating a new key pair. If this
+          property is unset, the key algorithm of the original key pair will be
+          used. Supported algorithms are available through the
+          /keyPairs/keyAlgorithms endpoint.
+        type: string
+      keySize:
+        description: >-
+          Key size, in bits. If this property is unset, the key size of the
+          original key pair will be used. Supported key sizes are available
+          through the /keyPairs/keyAlgorithms endpoint.
+        format: int32
+        type: integer
+      signatureAlgorithm:
+        description: >-
+          Required if the original key pair used SHA1 algorithm. If this
+          property is unset, the default signature algorithm of the original key
+          pair will be used. Supported signature algorithms are available
+          through the /keyPairs/keyAlgorithms endpoint.
+        type: string
+      validDays:
+        description: >-
+          Valid days for the new key pair to be created. If this property is
+          unset, the validity days of the original key pair will be used.
+        format: int32
+        type: integer
+    required:
+      - creationBufferDays
+      - activationBufferDays
+  KeyPairView:
+    description: Key pair details.
+    properties:
+      cryptoProvider:
+        $ref: '#/definitions/CryptoProvider'
+        description: >-
+          Cryptographic Provider. This is only applicable if Hybrid HSM mode is
+          true.
+        enum:
+          - LOCAL
+          - HSM
+      expires:
+        description: >-
+          The end date up until which the item is valid, in ISO 8601 format
+          (UTC).
+        format: date-time
+        type: string
+      id:
+        description: 'The persistent, unique ID for the certificate.'
+        type: string
+      issuerDN:
+        description: The issuer's distinguished name.
+        type: string
+      keyAlgorithm:
+        description: The public key algorithm.
+        type: string
+      keySize:
+        description: The public key size.
+        format: int32
+        type: integer
+      rotationSettings:
+        $ref: '#/definitions/KeyPairRotationSettings'
+        description: >-
+          Key pair rotation settings. Only applicable to self-signed signing key
+          pairs. Automatic key rotation is not currently available for SSL
+          client or SSL server key pairs.
+      serialNumber:
+        description: The serial number assigned by the CA.
+        type: string
+      sha1Fingerprint:
+        description: SHA-1 fingerprint in Hex encoding.
+        type: string
+      sha256Fingerprint:
+        description: SHA-256 fingerprint in Hex encoding.
+        type: string
+      signatureAlgorithm:
+        description: The signature algorithm.
+        type: string
+      status:
+        $ref: '#/definitions/CertificateValidity'
+        description: Status of the item.
+        enum:
+          - VALID
+          - EXPIRED
+          - NOT_YET_VALID
+          - REVOKED
+      subjectAlternativeNames:
+        description: The subject alternative names (SAN).
+        items:
+          type: string
+        type: array
+      subjectDN:
+        description: The subject's distinguished name.
+        type: string
+      validFrom:
+        description: 'The start date from which the item is valid, in ISO 8601 format (UTC).'
+        format: date-time
+        type: string
+      version:
+        description: The X.509 version to which the item conforms.
+        format: int32
+        type: integer
+  KeyPairViews:
+    description: A collection of KeyPairView items.
+    properties:
+      items:
+        description: The actual list of KeyPairView instances.
+        items:
+          $ref: '#/definitions/KeyPairView'
+        type: array
+  NewKeyPairSettings:
+    description: Settings for creating a new key pair.
+    properties:
+      city:
+        description: City.
+        type: string
+      commonName:
+        description: Common name for key pair subject.
+        type: string
+      country:
+        description: Country.
+        type: string
+      cryptoProvider:
+        $ref: '#/definitions/CryptoProvider'
+        description: >-
+          Cryptographic Provider.  This is only applicable if Hybrid HSM mode is
+          true.
+        enum:
+          - LOCAL
+          - HSM
+      id:
+        description: >-
+          The persistent, unique ID for the certificate. It can be any
+          combination of [a-z0-9._-]. This property is system-assigned if not
+          specified.
+        type: string
+      keyAlgorithm:
+        description: >-
+          Key generation algorithm. Supported algorithms are available through
+          the /keyPairs/keyAlgorithms endpoint.
+        type: string
+      keySize:
+        description: >-
+          Key size, in bits. If this property is unset, the default size for the
+          key algorithm will be used. Supported key sizes are available through
+          the /keyPairs/keyAlgorithms endpoint.
+        format: int32
+        type: integer
+      organization:
+        description: Organization.
+        type: string
+      organizationUnit:
+        description: Organization unit.
+        type: string
+      signatureAlgorithm:
+        description: >-
+          Signature algorithm. If this property is unset, the default signature
+          algorithm for the key algorithm will be used. Supported signature
+          algorithms are available through the /keyPairs/keyAlgorithms endpoint.
+        type: string
+      state:
+        description: State.
+        type: string
+      subjectAlternativeNames:
+        description: The subject alternative names (SAN).
+        items:
+          type: string
+        type: array
+      validDays:
+        description: Number of days the key pair will be valid for.
+        format: int32
+        type: integer
+    required:
+      - commonName
+      - organization
+      - country
+      - validDays
+      - keyAlgorithm
+  PKCS12ExportSettings:
+    description: Settings for exporting a PKCS12 file from the system.
+    properties:
+      password:
+        description: The password for the PKCS12 file that is created.
+        type: string
+    required:
+      - password
+  PKCS12File:
+    description: Represents the contents of a PKCS12 file.
+    properties:
+      cryptoProvider:
+        $ref: '#/definitions/CryptoProvider'
+        description: >-
+          Cryptographic Provider. This is only applicable if Hybrid HSM mode is
+          true.
+        enum:
+          - LOCAL
+          - HSM
+      encryptedPassword:
+        description: Encrypted password for the PKCS12 file.
+        type: string
+      fileData:
+        description: >-
+          Base64 encoded PKCS12 file data. New line characters should be omitted
+          or encoded in this value.
+        type: string
+      id:
+        description: >-
+          The persistent, unique ID for the certificate. It can be any
+          combination of [a-z0-9._-]. This property is system-assigned if not
+          specified.
+        type: string
+      password:
+        description: Password for the PKCS12 file.
+        type: string
+    required:
+      - fileData
+      - password
+      - encryptedPassword
+  ResourceLink:
+    description: A reference to a resource.
+    properties:
+      id:
+        description: The ID of the resource.
+        type: string
+      location:
+        description: >-
+          A read-only URL that references the resource. If the resource is not
+          currently URL-accessible, this property will be null.
+        type: string
+    required:
+      - id
+  SslServerSettings:
+    description: Settings for the SSL Server certificate configuration.
+    properties:
+      activeAdminConsoleCerts:
+        description: >-
+          The active SSL Server Certificate Key pairs for PF Administrator
+          Console.
+        items:
+          $ref: '#/definitions/ResourceLink'
+        type: array
+      activeRuntimeServerCerts:
+        description: The active SSL Server Certificate Key pairs for Runtime Server.
+        items:
+          $ref: '#/definitions/ResourceLink'
+        type: array
+      adminConsoleCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: >-
+          Reference to the default SSL Server Certificate Key pair active for PF
+          Administrator Console.
+      runtimeServerCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: >-
+          Reference to the default SSL Server Certificate Key pair active for
+          Runtime Server.
+    required:
+      - runtimeServerCertRef
+      - adminConsoleCertRef
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /keyPairs/sslServer:
+    get:
+      operationId: getKeyPairs
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/KeyPairViews'
+      summary: Get list of key pairs.
+  /keyPairs/sslServer/generate:
+    post:
+      consumes:
+        - application/json
+      operationId: createKeyPair
+      parameters:
+        - description: Settings for the new key pair.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewKeyPairSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/KeyPairView'
+        '201':
+          description: Key Pair created.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Generate a new key pair.
+  /keyPairs/sslServer/import:
+    post:
+      consumes:
+        - application/json
+      operationId: importKeyPair
+      parameters:
+        - description: File to import.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PKCS12File'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/KeyPairView'
+        '201':
+          description: Key Pair imported.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            The operation is not permitted, based on the current configuration
+            of the server.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Import a new key pair.
+  /keyPairs/sslServer/settings:
+    get:
+      operationId: getSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/SslServerSettings'
+      summary: Get the SSL Server Certificate Settings.
+    put:
+      operationId: updateSettings
+      parameters:
+        - description: Configuration for activation of SSL server certificates.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SslServerSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: SSL Certificate Settings updated.
+          schema:
+            $ref: '#/definitions/SslServerSettings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Update the SSL Server Certificate Settings.
+  '/keyPairs/sslServer/{id}':
+    delete:
+      description: >-
+        If the request is successful, the response body is empty. If the request
+        fails, an ApiResult is returned with details of the error.
+      operationId: deleteKeyPair
+      parameters:
+        - description: ID of the key pair to delete.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: Key Pair deleted.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Resource is in use and cannot be deleted.
+      summary: Delete a key pair.
+    get:
+      operationId: getKeyPair
+      parameters:
+        - description: ID of the key pair to retrieve.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/KeyPairView'
+        '404':
+          description: Resource not found.
+      summary: Retrieve details of a key pair.
+  '/keyPairs/sslServer/{id}/certificate':
+    get:
+      description: >-
+        For a successful request, the PEM-encoded certificate file is directly
+        returned as text and the response content type is
+        application/x-x509-ca-cert. If an error occurs, an ApiResult is returned
+        in JSON format and the content type is application/json.
+      operationId: exportCertificateFile
+      parameters:
+        - description: ID of the key pair.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            type: string
+        '404':
+          description: Resource not found.
+      summary: Download the certificate from a given key pair.
+  '/keyPairs/sslServer/{id}/csr':
+    get:
+      description: >-
+        For a successful request, the PEM-encoded CSR file is directly returned
+        as text and the response content type is application/pkcs10. If an error
+        occurs, an ApiResult is returned in JSON format, and the content type is
+        application/json.
+      operationId: exportCsr
+      parameters:
+        - description: ID of the key pair.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            type: string
+      summary: Generate a new certificate signing request (CSR) for this key pair.
+    post:
+      consumes:
+        - application/json
+      operationId: importCsrResponse
+      parameters:
+        - description: ID of the key pair.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: The CSR response.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CSRResponse'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: CSR Response imported.
+          schema:
+            $ref: '#/definitions/KeyPairView'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Import a CSR response for this key pair.
+  '/keyPairs/sslServer/{id}/pkcs12':
+    post:
+      consumes:
+        - application/json
+      description: >-
+        For a successful request, the PKCS12 file is directly returned in binary
+        format and the response content type is application/x-pkcs12. If an
+        error occurs, an ApiResult is returned in JSON format and the content
+        type is application/json. Due to the sensitivity of the password
+        parameter, the method for this operation is POST rather than GET.
+      operationId: exportPKCS12File
+      parameters:
+        - description: ID of the key pair.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Parameters for the export request
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PKCS12ExportSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Key Pair downloaded.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Download the key pair in PKCS12 format.
+schemes:
+  - https
+swagger: '2.0'
+

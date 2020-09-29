@@ -1,0 +1,310 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  AuthnApiApplication:
+    description: Authentication API Application.
+    properties:
+      additionalAllowedOrigins:
+        description: >-
+          The domain in the redirect URL is always whitelisted. This field
+          contains a list of additional allowed origin URL's for cross-origin
+          resource sharing.
+        items:
+          type: string
+        type: array
+      description:
+        description: The Authentication API Application description.
+        type: string
+      id:
+        description: >-
+          The persistent, unique ID for the Authentication API application. It
+          can be any combination of [a-zA-Z0-9._-]. This property is
+          system-assigned if not specified.
+        type: string
+      name:
+        description: The Authentication API Application Name. Name must be unique.
+        type: string
+      url:
+        description: The Authentication API Application redirect URL.
+        type: string
+    required:
+      - id
+      - name
+      - url
+  AuthnApiApplications:
+    description: A collection of Authentication API Application items.
+    properties:
+      items:
+        description: The actual list of Authentication API Applications.
+        items:
+          $ref: '#/definitions/AuthnApiApplication'
+        type: array
+  AuthnApiSettings:
+    description: Authentication API Application Settings.
+    properties:
+      apiEnabled:
+        description: >-
+          Specifies whether the authentication API is enabled. The default value
+          is false.
+        type: boolean
+      defaultApplicationRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Application for non authentication policy use cases.
+      enableApiDescriptions:
+        description: Enable the API Descriptions endpoint.
+        type: boolean
+  ResourceLink:
+    description: A reference to a resource.
+    properties:
+      id:
+        description: The ID of the resource.
+        type: string
+      location:
+        description: >-
+          A read-only URL that references the resource. If the resource is not
+          currently URL-accessible, this property will be null.
+        type: string
+    required:
+      - id
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /authenticationApi/applications:
+    get:
+      operationId: getAuthenticationApiApplications
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/AuthnApiApplications'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Get the collection of Authentication API Applications.
+    post:
+      consumes:
+        - application/json
+      operationId: createApplication
+      parameters:
+        - description: Configuration for new Authentication API Application.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthnApiApplication'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/AuthnApiApplication'
+        '201':
+          description: Authentication API Application created.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Create a new Authentication API Application.
+  '/authenticationApi/applications/{id}':
+    delete:
+      description: >-
+        Delete an Authentication API Application with the specified ID. A 404
+        status code is returned for nonexistent IDs. Note: If the request
+        succeeds, the response body is empty. If the request fails, an ApiResult
+        is returned with details of the error.
+      operationId: deleteApplication
+      parameters:
+        - description: ID of Authentication API Application to delete.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: Authentication API Application deleted.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Delete an Authentication API Application.
+    get:
+      description: >-
+        Get an Authentication API Application with the specified ID. A 404
+        status code is returned for nonexistent IDs.
+      operationId: getApplication
+      parameters:
+        - description: ID of the Authentication API Application to fetch.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/AuthnApiApplication'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Find Authentication API Application by ID.
+    put:
+      consumes:
+        - application/json
+      description: >-
+        Update an Authentication API Application with the matching ID. If the
+        application is not properly configured, a 422 status code is returned
+        along with a list of validation errors that must be corrected. Note: A
+        404 status code is returned for nonexistent IDs.
+      operationId: updateApplication
+      parameters:
+        - description: ID of the Authentication API Application to update.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Configuration for updated application.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthnApiApplication'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Authentication API Application updated.
+          schema:
+            $ref: '#/definitions/AuthnApiApplication'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update an Authentication API Application.
+  /authenticationApi/settings:
+    get:
+      operationId: getAuthenticationApiSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/AuthnApiSettings'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Get the Authentication API settings.
+    put:
+      consumes:
+        - application/json
+      operationId: updateAuthenticationApiSettings
+      parameters:
+        - description: Authentication API Settings
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthnApiSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Settings updated.
+          schema:
+            $ref: '#/definitions/AuthnApiSettings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Set the Authentication API settings.
+schemes:
+  - https
+swagger: '2.0'
+

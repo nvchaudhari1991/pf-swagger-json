@@ -1,0 +1,216 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  ConfigStoreBundle:
+    description: List of all configuration settings in a bundle.
+    properties:
+      items:
+        description: List of configuration settings.
+        items:
+          $ref: '#/definitions/ConfigStoreSetting'
+        type: array
+  ConfigStoreSetting:
+    description: Single configuration setting.
+    properties:
+      id:
+        description: The id of the configuration setting.
+        type: string
+      listValue:
+        description: >-
+          The list of values for the configuration setting. This is used when
+          the setting has a list of string values.
+        items:
+          type: string
+        type: array
+      mapValue:
+        additionalProperties:
+          type: string
+        description: >-
+          The map of key/value pairs for the configuration setting. This is used
+          when the setting has a map of string keys and values.
+      stringValue:
+        description: >-
+          The value of the configuration setting. This is used when the setting
+          has a single string value.
+        type: string
+      type:
+        $ref: '#/definitions/Type'
+        description: >-
+          The type of configuration setting. This could be a single string, list
+          of strings, or map of string keys and values.
+        enum:
+          - STRING
+          - LIST
+          - MAP
+    required:
+      - id
+      - type
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  '/configStore/{bundle}':
+    get:
+      operationId: getSettings
+      parameters:
+        - description: >-
+            This field represents a configuration file that contains a bundle of
+            settings.
+          in: path
+          name: bundle
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/ConfigStoreBundle'
+        '403':
+          description: The specified configuration bundle is unavailable.
+        '404':
+          description: Resource not found.
+      summary: Get all settings from a bundle.
+  '/configStore/{bundle}/{id}':
+    delete:
+      description: >-
+        This is an advanced operation with minimal validation. Incorrect use of
+        this operation can harm the integrity of your PingFederate
+        configuration. Please ensure you have specified the correct bundle name
+        and setting ID before invoking this operation.
+      operationId: deleteSetting
+      parameters:
+        - description: >-
+            This field represents a configuration file that contains a bundle of
+            settings.
+          in: path
+          name: bundle
+          required: true
+          type: string
+        - description: ID of setting to delete.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: Configuration setting deleted.
+        '403':
+          description: The specified configuration bundle is unavailable.
+        '404':
+          description: Resource not found.
+      summary: Delete a setting.
+    get:
+      operationId: getSetting
+      parameters:
+        - description: >-
+            This field represents a configuration file that contains a bundle of
+            settings.
+          in: path
+          name: bundle
+          required: true
+          type: string
+        - description: ID of setting to retrieve.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/ConfigStoreSetting'
+        '403':
+          description: The specified configuration bundle is unavailable.
+        '404':
+          description: Resource not found.
+      summary: Get a single setting from a bundle.
+    put:
+      consumes:
+        - application/json
+      description: >-
+        This is an advanced operation with minimal validation. Incorrect use of
+        this operation can harm the integrity of your PingFederate
+        configuration. Please ensure you have specified the correct bundle name,
+        setting ID, and setting value before invoking this operation.
+      operationId: updateSetting
+      parameters:
+        - description: >-
+            This field represents a configuration file that contains a bundle of
+            settings.
+          in: path
+          name: bundle
+          required: true
+          type: string
+        - description: ID of setting to create/update.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Configuration setting.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ConfigStoreSetting'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Configuration setting updated.
+          schema:
+            $ref: '#/definitions/ConfigStoreSetting'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: The specified configuration bundle is unavailable.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update a setting.
+schemes:
+  - https
+swagger: '2.0'
+

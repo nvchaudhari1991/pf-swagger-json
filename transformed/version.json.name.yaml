@@ -1,0 +1,28 @@
+basePath: /pf-admin-api/v1
+definitions:
+  Version:
+    description: Server version.
+    properties:
+      version:
+        description: Server version.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /version:
+    get:
+      operationId: getVersion
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/Version'
+      summary: Gets the server version.
+schemes:
+  - https
+swagger: '2.0'
+

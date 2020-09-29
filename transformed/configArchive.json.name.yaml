@@ -1,0 +1,83 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /configArchive/export:
+    get:
+      operationId: exportConfigArchive
+      produces:
+        - application/json
+        - application/zip
+      responses:
+        '200':
+          description: Success.
+      summary: Export a configuration archive.
+  /configArchive/import:
+    post:
+      consumes:
+        - multipart/form-data
+      description: >-
+        If there are missing components or license inconsistencies, the import
+        is halted by default to allow you to install the necessary components or
+        license. However, you can choose to force the deployment by setting
+        'forceImport' to true and then install the necessary files later.
+      operationId: importConfigArchive
+      parameters:
+        - in: body
+          name: file
+          required: false
+          schema:
+            type: file
+        - in: query
+          name: forceImport
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Configuration Archive imported.
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '422':
+          description: Validation error(s) occurred.
+      summary: Import a configuration archive.
+schemes:
+  - https
+swagger: '2.0'
+

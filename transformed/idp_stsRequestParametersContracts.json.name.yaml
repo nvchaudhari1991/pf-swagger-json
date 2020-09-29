@@ -1,0 +1,202 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  StsRequestParametersContract:
+    description: A Security Token Service request parameter contract.
+    properties:
+      id:
+        description: >-
+          The ID of the Security Token Service request parameter
+          contract.<br>Note: Ignored for PUT requests.
+        type: string
+      name:
+        description: >-
+          The name of the Security Token Service request parameter
+          contract.<br>Note: Ignored for PUT requests.
+        type: string
+      parameters:
+        description: >-
+          The list of parameters within the Security  Token Service request
+          parameter contract.
+        items:
+          type: string
+        type: array
+    required:
+      - id
+      - name
+      - parameters
+  StsRequestParametersContracts:
+    description: A Collection of STS Request Parameters Contracts
+    properties:
+      items:
+        description: The actual list of STS Request Parameters Contracts.
+        items:
+          $ref: '#/definitions/StsRequestParametersContract'
+        type: array
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /idp/stsRequestParametersContracts:
+    get:
+      operationId: getStsRequestParamContracts
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/StsRequestParametersContracts'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+      summary: Get the list of STS Request Parameters Contracts.
+    post:
+      consumes:
+        - application/json
+      operationId: createStsRequestParamContract
+      parameters:
+        - description: Details for the STS Request Parameters Contract.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/StsRequestParametersContract'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/StsRequestParametersContract'
+        '201':
+          description: STS Request Parameters Contract created.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Create a new STS Request Parameters Contract.
+  '/idp/stsRequestParametersContracts/{id}':
+    delete:
+      operationId: deleteStsRequestParamContractById
+      parameters:
+        - description: ID of STS Request Parameters Contract to delete.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: STS Request Parameters Contract deleted.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+      summary: Delete a STS Request Parameters Contract.
+    get:
+      operationId: getStsRequestParamContractById
+      parameters:
+        - description: ID of STS Request Parameters Contract to fetch.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/StsRequestParametersContract'
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+      summary: Get a STS Request Parameters Contract.
+    put:
+      operationId: updateStsRequestParamContractById
+      parameters:
+        - description: ID of STS Request Parameters Contract to update.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Details for updated STS Request Parameters Contract.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/StsRequestParametersContract'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: STS Request Parameters Contract updated.
+          schema:
+            $ref: '#/definitions/StsRequestParametersContract'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have its IdP role enabled. Operation not
+            available.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update a STS Request Parameters Contract.
+schemes:
+  - https
+swagger: '2.0'
+

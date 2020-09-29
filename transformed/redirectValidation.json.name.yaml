@@ -1,0 +1,111 @@
+basePath: /pf-admin-api/v1
+definitions:
+  RedirectValidationLocalSettings:
+    description: Settings for local redirect validation.
+    properties:
+      enableInErrorResourceValidation:
+        description: Enable validation for error resource.
+        type: boolean
+      enableTargetResourceValidationForIdpDiscovery:
+        description: Enable target resource validation for IdP discovery.
+        type: boolean
+      enableTargetResourceValidationForSLO:
+        description: Enable target resource validation for SLO.
+        type: boolean
+      enableTargetResourceValidationForSSO:
+        description: Enable target resource validation for SSO.
+        type: boolean
+      whiteList:
+        description: List of URLs that are designated as valid target resources.
+        items:
+          $ref: '#/definitions/RedirectValidationSettingsWhitelistEntry'
+        type: array
+  RedirectValidationPartnerSettings:
+    description: Settings for redirection at a partner site.
+    properties:
+      enableWreplyValidationSLO:
+        description: Enable wreply validation for SLO.
+        type: boolean
+  RedirectValidationSettings:
+    description: 'Settings for redirect validation for SSO, SLO and IdP discovery.'
+    properties:
+      redirectValidationLocalSettings:
+        $ref: '#/definitions/RedirectValidationLocalSettings'
+        description: Settings for local redirect validation.
+      redirectValidationPartnerSettings:
+        $ref: '#/definitions/RedirectValidationPartnerSettings'
+        description: Settings for redirection at a partner site.
+  RedirectValidationSettingsWhitelistEntry:
+    description: Whitelist entry for valid target resource.
+    properties:
+      allowQueryAndFragment:
+        description: Allow any query parameters and fragment in the resource.
+        type: boolean
+      idpDiscovery:
+        description: Enable this target resource for IdP discovery validation.
+        type: boolean
+      inErrorResource:
+        description: Enable this target resource for in error resource validation.
+        type: boolean
+      requireHttps:
+        description: Require HTTPS for accessing this resource.
+        type: boolean
+      targetResourceSLO:
+        description: Enable this target resource for SLO redirect validation.
+        type: boolean
+      targetResourceSSO:
+        description: Enable this target resource for SSO redirect validation.
+        type: boolean
+      validDomain:
+        description: Domain of a valid resource.
+        type: string
+      validPath:
+        description: Path of a valid resource.
+        type: string
+    required:
+      - validDomain
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /redirectValidation:
+    get:
+      operationId: getRedirectValidationSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/RedirectValidationSettings'
+      summary: Retrieve redirect validation settings.
+    put:
+      description: >-
+        <b>Note: </b>Ensure IdP Discovery and/or WS-Federation is enabled for
+        redirect validation to function for IdP Discovery and/or wreply for SLO
+        respectively.
+      operationId: updateRedirectValidationSettings
+      parameters:
+        - description: Redirect validation settings.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RedirectValidationSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Redirect validation settings updated.
+          schema:
+            $ref: '#/definitions/RedirectValidationSettings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Update redirect validation settings.
+schemes:
+  - https
+swagger: '2.0'
+

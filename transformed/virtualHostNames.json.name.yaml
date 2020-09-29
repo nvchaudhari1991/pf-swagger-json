@@ -1,0 +1,49 @@
+basePath: /pf-admin-api/v1
+definitions:
+  VirtualHostNameSettings:
+    description: Settings for virtual host names.
+    properties:
+      virtualHostNames:
+        description: List of virtual host names.
+        items:
+          type: string
+        type: array
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /virtualHostNames:
+    get:
+      operationId: getVirtualHostNamesSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/VirtualHostNameSettings'
+      summary: Retrieve virtual host names settings.
+    put:
+      operationId: updateVirtualHostNamesSettings
+      parameters:
+        - description: Virtual host names settings.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/VirtualHostNameSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Virtual host names settings updated.
+          schema:
+            $ref: '#/definitions/VirtualHostNameSettings'
+        '422':
+          description: Validation error(s) occurred.
+      summary: Update virtual host names settings.
+schemes:
+  - https
+swagger: '2.0'
+

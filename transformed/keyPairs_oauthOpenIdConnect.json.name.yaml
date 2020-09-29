@@ -1,0 +1,154 @@
+basePath: /pf-admin-api/v1
+definitions:
+  OAuthOidcKeysSettings:
+    description: Setting for OAuth/OpenID Connect signing and decryption key settings.
+    properties:
+      p256ActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-256 key currently active.
+      p256DecryptionActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-256 decryption key currently active.
+      p256DecryptionPreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-256 decryption key previously active.
+      p256DecryptionPublishX5cParameter:
+        description: >-
+          Enable publishing of the P-256 certificate chain associated with the
+          active key.
+        type: boolean
+      p256PreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-256 key previously active.
+      p256PublishX5cParameter:
+        description: >-
+          Enable publishing of the P-256 certificate chain associated with the
+          active key.
+        type: boolean
+      p384ActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-384 key currently active.
+      p384DecryptionActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-384 decryption key currently active.
+      p384DecryptionPreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-384 decryption key previously active.
+      p384DecryptionPublishX5cParameter:
+        description: >-
+          Enable publishing of the P-384 certificate chain associated with the
+          active key.
+        type: boolean
+      p384PreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-384 key previously active.
+      p384PublishX5cParameter:
+        description: >-
+          Enable publishing of the P-384 certificate chain associated with the
+          active key.
+        type: boolean
+      p521ActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-521 key currently active.
+      p521DecryptionActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-521 decryption key currently active.
+      p521DecryptionPreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-521 decryption key previously active.
+      p521DecryptionPublishX5cParameter:
+        description: >-
+          Enable publishing of the P-521 certificate chain associated with the
+          active key.
+        type: boolean
+      p521PreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the P-521 key previously active.
+      p521PublishX5cParameter:
+        description: >-
+          Enable publishing of the P-521 certificate chain associated with the
+          active key.
+        type: boolean
+      rsaActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the RSA key currently active.
+      rsaDecryptionActiveCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the RSA decryption key currently active.
+      rsaDecryptionPreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the RSA decryption key previously active.
+      rsaDecryptionPublishX5cParameter:
+        description: >-
+          Enable publishing of the RSA certificate chain associated with the
+          active key.
+        type: boolean
+      rsaPreviousCertRef:
+        $ref: '#/definitions/ResourceLink'
+        description: Reference to the RSA key previously active.
+      rsaPublishX5cParameter:
+        description: >-
+          Enable publishing of the RSA certificate chain associated with the
+          active key.
+        type: boolean
+      staticJwksEnabled:
+        description: Enable static keys.
+        type: boolean
+    required:
+      - staticJwksEnabled
+  ResourceLink:
+    description: A reference to a resource.
+    properties:
+      id:
+        description: The ID of the resource.
+        type: string
+      location:
+        description: >-
+          A read-only URL that references the resource. If the resource is not
+          currently URL-accessible, this property will be null.
+        type: string
+    required:
+      - id
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /keyPairs/oauthOpenIdConnect:
+    get:
+      operationId: getOauthOidcKeysSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/OAuthOidcKeysSettings'
+      summary: Retrieve OAuth/Open ID Connect key settings.
+    put:
+      consumes:
+        - application/json
+      operationId: updateOAuthOidcKeysSettings
+      parameters:
+        - description: OAuth and Open ID Connect static key settings
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/OAuthOidcKeysSettings'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OAuth/Open ID Connect key settings updated.
+          schema:
+            $ref: '#/definitions/OAuthOidcKeysSettings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '422':
+          description: Validation error(s) occurred.
+      summary: Update OAuth/Open ID Connect key settings.
+schemes:
+  - https
+swagger: '2.0'
+

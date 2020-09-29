@@ -1,0 +1,54 @@
+basePath: /pf-admin-api/v1
+definitions:
+  KeyAlgorithm:
+    description: Details for a key algorithm.
+    properties:
+      defaultKeySize:
+        description: Default key size for this algorithm.
+        format: int32
+        type: integer
+      defaultSignatureAlgorithm:
+        description: Default signature algorithm for this key algorithm.
+        type: string
+      keySizes:
+        description: 'Possible key sizes for this algorithm, in bits.'
+        items:
+          format: int32
+          type: integer
+        type: array
+      name:
+        description: Name of the key algorithm.
+        type: string
+      signatureAlgorithms:
+        description: Possible signature algorithms for this key algorithm.
+        items:
+          type: string
+        type: array
+  KeyAlgorithms:
+    description: A collection of key algorithms.
+    properties:
+      items:
+        description: The actual list of key algorithms.
+        items:
+          $ref: '#/definitions/KeyAlgorithm'
+        type: array
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /keyPairs/keyAlgorithms:
+    get:
+      operationId: getKeyAlgorithms
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/KeyAlgorithms'
+      summary: Get list of the key algorithms supported for key pair generation.
+schemes:
+  - https
+swagger: '2.0'
+

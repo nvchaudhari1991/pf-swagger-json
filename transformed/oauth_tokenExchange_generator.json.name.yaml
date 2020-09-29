@@ -1,0 +1,340 @@
+basePath: /pf-admin-api/v1
+definitions:
+  ApiResult:
+    description: Details on the result of the operation.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      message:
+        description: Success or error message.
+        type: string
+      resultId:
+        description: Result identifier.
+        type: string
+      validationErrors:
+        description: 'List of validation errors, if any.'
+        items:
+          $ref: '#/definitions/ValidationError'
+        type: array
+  ResourceLink:
+    description: A reference to a resource.
+    properties:
+      id:
+        description: The ID of the resource.
+        type: string
+      location:
+        description: >-
+          A read-only URL that references the resource. If the resource is not
+          currently URL-accessible, this property will be null.
+        type: string
+    required:
+      - id
+  TokenExchangeGeneratorGroup:
+    description: >-
+      The set of attributes used to configure a OAuth 2.0 Token Exchange
+      Generator group.
+    properties:
+      generatorMappings:
+        description: >-
+          A list of Token Generator mapping into an OAuth 2.0 Token Exchange
+          requested token type.
+        items:
+          $ref: '#/definitions/TokenExchangeGeneratorMapping'
+        type: array
+      id:
+        description: The Token Exchange Generator group ID. ID is unique.
+        type: string
+      name:
+        description: The Token Exchange Generator group name. Name is unique.
+        type: string
+      resourceUris:
+        description: >-
+          The list of  resource URI's which map to this Token Exchange Generator
+          group.
+        items:
+          type: string
+        type: array
+    required:
+      - id
+      - name
+      - generatorMappings
+  TokenExchangeGeneratorGroups:
+    description: A collection of OAuth 2.0 Token Exchange Generator groups.
+    properties:
+      items:
+        description: The list of OAuth 2.0 Token Exchange Generator groups.
+        items:
+          $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        type: array
+  TokenExchangeGeneratorMapping:
+    description: >-
+      A Token Generator mapping into an OAuth 2.0 Token Exchange requested token
+      type.
+    properties:
+      defaultMapping:
+        description: >-
+          Whether this is the default Token Generator Mapping. Defaults to false
+          if not specified.
+        type: boolean
+      requestedTokenType:
+        description: The Requested token type
+        type: string
+      tokenGenerator:
+        $ref: '#/definitions/ResourceLink'
+        description: The Token Generator used to generate the requested token
+    required:
+      - requestedTokenType
+      - tokenGenerator
+  TokenExchangeGeneratorSettings:
+    description: Settings for the OAuth Token Exchange Generator Groups.
+    properties:
+      defaultGeneratorGroupRef:
+        $ref: '#/definitions/ResourceLink'
+        description: >-
+          Reference to the default Token Exchange Generator group, if one is
+          defined.
+  ValidationError:
+    description: A data input validation error.
+    properties:
+      developerMessage:
+        description: 'Developer-oriented error message, if available.'
+        type: string
+      errorId:
+        description: Error identifier.
+        type: string
+      fieldPath:
+        description: 'The path to the model field to which the error relates, if one exists.'
+        type: string
+      message:
+        description: User-friendly error description.
+        type: string
+host: 'ip-10-101-29-72:9999'
+info:
+  title: 'ip-10-101-29-72:9999'
+  version: v1
+paths:
+  /oauth/tokenExchange/generator/groups:
+    get:
+      operationId: getGroups
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroups'
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+      summary: Get list of OAuth 2.0 Token Exchange Generator groups.
+    post:
+      consumes:
+        - application/json
+      description: >-
+        Create a new OAuth 2.0 Token Exchange Generator group. If the OAuth 2.0
+        Token Exchange Generator group is not properly configured, a 422 status
+        code is returned along with a list of validation errors that must be
+        corrected.
+      operationId: createGroup
+      parameters:
+        - description: Configuration for new OAuth 2.0 Token Exchange Generator.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        - description: >-
+            External validation will be bypassed when set to true. Default to
+            false.
+          in: header
+          name: bypassExternalValidation
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        '201':
+          description: Token Exchange Processor Policy created.
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Create a new OAuth 2.0 Token Exchange Generator group.
+  '/oauth/tokenExchange/generator/groups/{id}':
+    delete:
+      description: >-
+        Delete an OAuth 2.0 Token Exchange Generator group with the specified
+        ID. A 404 status code is returned for nonexistent IDs. Note: If the
+        request succeeds, the response body is empty. If the request fails, an
+        ApiResult is returned with details of the error.
+      operationId: deleteGroup
+      parameters:
+        - description: ID of OAuth 2.0 Token Exchange Generator group to delete.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: No response was specified
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '204':
+          description: Token Exchange Processor Policy deleted.
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Delete an OAuth 2.0 Token Exchange Generator group.
+    get:
+      description: >-
+        Get an OAuth 2.0 Token Exchange Generator group with the specified ID. A
+        404 status code is returned for nonexistent IDs.
+      operationId: getGroup
+      parameters:
+        - description: ID of the OAuth 2.0 Token Exchange Generator group to fetch.
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+        '404':
+          description: Resource not found.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Find an OAuth 2.0 Token Exchange Generator group by ID.
+    put:
+      consumes:
+        - application/json
+      description: >-
+        Update an OAuth 2.0 Token Exchange Generator group with the matching ID.
+        If the group is not properly configured, a 422 status code is returned
+        along with a list of validation errors that must be corrected. Note: A
+        404 status code is returned for nonexistent IDs.
+      operationId: updateGroup
+      parameters:
+        - description: ID of the OAuth 2.0 Token Exchange Generator group to update.
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Configuration for updated OAuth 2.0 Token Exchange Generator group.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        - description: >-
+            External validation will be bypassed when set to true. Default to
+            false.
+          in: header
+          name: bypassExternalValidation
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Token Exchange Processor Policy updated.
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorGroup'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+        '404':
+          description: Resource not found.
+          schema:
+            $ref: '#/definitions/ApiResult'
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update an OAuth 2.0 Token Exchange Generator group.
+  /oauth/tokenExchange/generator/settings:
+    get:
+      operationId: getSettings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success.
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorSettings'
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+      summary: Get general OAuth 2.0 Token Exchange Generator settings.
+    put:
+      consumes:
+        - application/json
+      operationId: updateSettings
+      parameters:
+        - description: OAuth 2.0 Token Exchange Generator settings.
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorSettings'
+        - description: >-
+            External validation will be bypassed when set to true. Default to
+            false.
+          in: header
+          name: bypassExternalValidation
+          required: false
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Settings updated.
+          schema:
+            $ref: '#/definitions/TokenExchangeGeneratorSettings'
+        '400':
+          description: The request was improperly formatted or contained invalid fields.
+        '403':
+          description: >-
+            PingFederate does not have the IdP, SP and OAuth roles enabled.
+            Operation not available.
+        '422':
+          description: Validation error(s) occurred.
+          schema:
+            $ref: '#/definitions/ApiResult'
+      summary: Update general OAuth 2.0 Token Exchange Generator settings.
+schemes:
+  - https
+swagger: '2.0'
+
